@@ -1,12 +1,13 @@
 %v_t+lambda*log(exp(1/lambda*(mu*v_s+v_q+mu))+exp(1/lambda*mu_2))=0
-grid=[20;40;60;80;100;120;140;160;180;200;220]*[2];
-lambdas=[0.0025];
+grid=[20;40;60;80;100;120;140;160;180;200;220]*[1];
+% lambdas=[0.1,0.01];
+lambdas=0.1;
 % grid=[120,120,120,120,120,120,120,120,120;
 %     ];
 % lambdas=[1,1/10,(1/10)^2,0.01*(1/2),0.01*(1/2)^2,0.01*(1/2)^3,0.01*(1/2)^4,0.01*(1/2)^5,0.01*(1/2)^6];
 % grid=20;
 % lambdas=0.01/2;
-errors=zeros(size(grid,1),size(lambdas,2));
+errors=zeros(size(grid,1),size(lambdas,1));
 order=2;
 for jj=1:size(lambdas,2)
     for j=1:size(grid,1)
@@ -53,8 +54,8 @@ for jj=1:size(lambdas,2)
 
             % big=max(muhat(centers,center)+max(muhat(centers,center),0).*vsp+min(muhat(centers,center),0).*vsm+vqp,1/2);
             % small=min(muhat(centers,center)+max(muhat(centers,center),0).*vsp+min(muhat(centers,center),0).*vsm+vqp,1/2);
-            big=max(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp,1/2);
-            small=min(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp,1/2);
+            big=max(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp+(temp(centers+1,center)-2*temp(centers,center)+temp(max(1,centers-1),center))/ds^2,1/2);
+            small=min(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp+(temp(centers+1,center)-2*temp(centers,center)+temp(max(1,centers-1),center))/ds^2,1/2);
             temp(centers,center)=temp(centers,center)+dt*(lambdas(jj)*log(exp((small-big)/lambdas(jj))+1)+big);
             %if you want RK2 uncomment below
             center=1+(0:(k*i-2));
@@ -70,8 +71,8 @@ for jj=1:size(lambdas,2)
             %     muhat.*(g1sm+g1sp)/2+(g1qp+g1qm)/2+muhat.*(g1sp-g1sm)/2+(g1qp-g1qm)/2)+(1-pie)*1/2-lambda*(pie.*log(pie)+(1-pie).*log(1-pie))-f);
             % big=max(muhat(centers,center)+max(muhat(centers,center),0).*tempsp+min(muhat(centers,center),0).*tempsm+tempqp,1/2);
             % small=min(muhat(centers,center)+max(muhat(centers,center),0).*tempsp+min(muhat(centers,center),0).*tempsm+tempqp,1/2);
-            big=max(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp,1/2);
-            small=min(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp,1/2);
+            big=max(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp+(temp(centers+1,center)-2*temp(centers,center)+temp(max(1,centers-1),center))/ds^2,1/2);
+            small=min(muhat(centers,center)+muhat(centers,center).*tempsp+tempqp+(temp(centers+1,center)-2*temp(centers,center)+temp(max(1,centers-1),center))/ds^2,1/2);
             temp(centers,center)=temp(centers,center)+dt*(lambdas(jj)*log(exp((small-big)/lambdas(jj))+1)+big);
             v(centers,center)=1/2*(v(centers,center)+temp(centers,center));
             %if you want RK2 uncomment above
@@ -95,10 +96,6 @@ for jj=1:size(lambdas,2)
                 if isinf(error)
                     pause
                 end
-            end
-            if i==floor(T/2)
-                figure
-                surf(sol-v(indexs,index))
             end
             %compared to unregularized
             % error=(Z*error+norm(reshape(max(muhat(indexs,index),1/2)*(1-(i-k)/(r*n*k))-...
@@ -152,116 +149,12 @@ end
 %     0.0090       NaN;
 %     0.0090       NaN;];
 %only order -1.2889
-% grid=[20;40;60;80;100;120;140;160;180;200;220]*[1];
-% lambdas=0.01;
-% polyfit(log(grid),log(errors),1)
-% 
-% ans =
-% 
-%    -1.3851   -6.9964
-% errors=
-% 1.0e-04 *
-% 
-%     0.2166
-%     0.0471
-%     0.0230
-%     0.0172
-%     0.0138
-%     0.0119
-%     0.0100
-%     0.0079
-%     0.0069
-%     0.0069
-%     0.0067
 %Unshifted in q:
-% grid=[20;40;60;80;100;120;140;160;180;200;220]*[1,1,1];
-% lambdas=[0.02,0.01,0.005];
-% errors
-% 
-% errors =
-% 1.0e-04 *
-% 
-%     0.1917    0.2344    0.2640
-%     0.0455    0.0645    0.0827
-%     0.0192    0.0291    0.0409
-%     0.0106    0.0167    0.0250
-%     0.0066    0.0106    0.0167
-%     0.0046    0.0074    0.0121
-%     0.0033    0.0054    0.0091
-%     0.0025    0.0042    0.0071
-%     0.0020    0.0033    0.0056
-%     0.0016    0.0026    0.0046
-%     0.0013    0.0022    0.0038
-% polyfit(log(grid(:,1)),log(errors(:,1)),1)
-% 
-% ans =
-% 
-%    -2.0780   -4.6433
-% polyfit(log(grid(:,2)),log(errors(:,2)),1)
-% 
-% ans =
-% 
-%    -1.9609   -4.7399   
-% polyfit(log(grid(:,3)),log(errors(:,3)),1)
-% 
-% ans =
-% 
-%    -1.7678   -5.1918
-% grid=[20;40;60;80;100;120;140;160;180;200;220]*[1];
-% lambdas=[0.0025];
-% polyfit(log(grid(:,1)),log(errors(:,1)),1)
-% 
-% ans =
-% 
-%    -1.5825   -5.7257
-% 
-% errors
-% 
-% errors =
-% 
-%    1.0e-04 *
-% 
-%     0.2800
-%     0.0944
-%     0.0500
-%     0.0324
-%     0.0227
-%     0.0171
-%     0.0132
-%     0.0107
-%     0.0087
-%     0.0073
-%     0.0062
-% grid=[20;40;60;80;100;120;140;160;180;200;220]*[2];
-% lambdas=[0.0025];
-% polyfit(log(grid(:,1)),log(errors(:,1)),1)
-% 
-% ans =
-% 
-%    -1.6586   -5.3821
-% 
-% errors
-% 
-% errors =
-% 
-%    1.0e-05 *
-% 
-%     0.9445
-%     0.3238
-%     0.1708
-%     0.1068
-%     0.0730
-%     0.0534
-%     0.0407
-%     0.0321
-%     0.0260
-%     0.0215
-%     0.0180
 function [vsp,vqp]=ENO(v,i,n,lambda,k)
 ds=1/n;
 dq=1/n;
 index=1+(0:i);
-order=2;
+order=3;
 vsp=(v(index+1,index)-v(index,index))/ds;
 vqp=(v(index,index+1)-v(index,index))/dq;
 % centers=3*(r*k*n-1)+1+(-3*(i-1):3*(i-1));
