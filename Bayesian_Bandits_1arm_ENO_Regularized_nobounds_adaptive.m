@@ -1,6 +1,8 @@
 %v_t+lambda*log(exp(1/lambda*(mu*v_s+v_q+mu))+exp(1/lambda*mu_2))=0
-grid=[20;40;60;80;100;120;140;160;180;200;220]*[2];
+grid=[600];
 lambdas=[0.0025];
+grid=[200;220]*4;
+lambdas=[0.005];
 % grid=[120,120,120,120,120,120,120,120,120;
 %     ];
 % lambdas=[1,1/10,(1/10)^2,0.01*(1/2),0.01*(1/2)^2,0.01*(1/2)^3,0.01*(1/2)^4,0.01*(1/2)^5,0.01*(1/2)^6];
@@ -17,6 +19,7 @@ for jj=1:size(lambdas,2)
         % v=zeros(2*(r*k*3*n-3)+1,r*k*3*n-2);
         ds=1/n;
         dq=1/n;
+        %Doing k=1 doesn't work
         [t,~,~]=domofdep(ds,1,k,1,1,0,1);
         T=size(t,2);
         v=zeros(k*T+1);
@@ -36,7 +39,7 @@ for jj=1:size(lambdas,2)
             %     pie=exp(1/lambdas(jj)*(muhat-big))./(exp(1/lambdas(jj)*(1/2-big))+exp(1/lambdas(jj)*(muhat-big)));
             %     v=dt*(pie.*(muhat-lambdas(jj)*log(pie))+(1-pie).*(1/2-lambdas(jj)*log(1-pie))-f);
             %     pause
-            % else
+            % else  
             temp=v;
             center=1+(0:(k*i-1));
             % centers=3*(r*k*n-1)+1+(-3*(i-1):3*(i-1));
@@ -87,7 +90,8 @@ for jj=1:size(lambdas,2)
             reg1(limit1)=0;
             reg2(limit2)=0;
             sol=(pie.*(muhat(indexs,index)-lambdas(jj)*reg1)+...
-                (1-pie).*(1/2-lambdas(jj)*reg2))*(1-t(i-1));            
+                (1-pie).*(1/2-lambdas(jj)*reg2))*(1-t(i-1));
+            sol=lambdas(jj)*log(exp(muhat(indexs,indexs)/lambdas(jj))+exp(1/(2*lambdas(jj))))*(1-t(i-1));   
             if i>=2
                 % step=(pie.*(muhat(indexs,index)-lambdas(jj)*log(pie))+(1-pie).*(1/2-lambdas(jj)*log(1-pie)))*(1-t(i-1))-v(indexs,index);
                 % error=(Z*error+norm(reshape(step,1,[]),1))/(Z+size(index,2)^2);
@@ -96,14 +100,13 @@ for jj=1:size(lambdas,2)
                     pause
                 end
             end
-            if i==floor(T/2)
-                figure
-                surf(sol-v(indexs,index))
-            end
+            %uncomment if you want error surf plots
+            % if i==floor(T/2)
+            %     figure
+            %     surf(sol-v(indexs,index))
+            % end
             %compared to unregularized
-            % error=(Z*error+norm(reshape(max(muhat(indexs,index),1/2)*(1-(i-k)/(r*n*k))-...
-            %     v,1,(n+1)^2),1))/(Z+(n+1)^2);
-            % error=(Z*error+norm(reshape(max(muhat(indexs,index),1/2)*(1-(i-1)/(r*k*n))-...
+            % error=(Z*error+norm(reshape(max(muhat(indexs,index),1/2)*(1-t(i-1))-...
             %     v(indexs,index),...
             %     1,[]),1))/(Z+size(index,2)^2);
             Z=Z+size(index,2)^2;
@@ -257,6 +260,97 @@ end
 %     0.0260
 %     0.0215
 %     0.0180
+% grid=[20;40;60;80;100;120;140;160;180;200;220]*[3];
+% lambdas=[0.0025];
+% polyfit(log(grid(:,1)),log(errors(:,1)),1)
+% 
+% ans =
+% 
+%    -1.6981   -5.1806
+% errors
+% 
+% errors =
+% 
+%    1.0e-05 *
+% 
+%     0.5004
+%     0.1708
+%     0.0875
+%     0.0534
+%     0.0361
+%     0.0260
+%     0.0195
+%     0.0153
+%     0.0127
+%     0.0106
+%     0.0090
+% ENO3 RK2
+% grid=[20;40;60;80;100;120;140;160;180;200;220]*[1];
+% lambdas=[0.0025];
+%...
+%ENO2 RK2
+% grid=[20;40;60;80;100;120;140;160;180;200;220]*[2,4];
+% lambdas=[0.01,0.005];
+% errors
+% 
+% errors =
+% 
+%    1.0e-04 *
+% 
+%     0.0645    0.0250
+%     0.0167    0.0071
+%     0.0074    0.0032
+%     0.0042    0.0038
+%     0.0026    0.0299
+%     0.0018    0.0858
+%     0.0013    0.2373
+%     0.0025    0.1676
+%     0.0308    0.2830
+%     0.0264    0.1982
+%     0.2299    0.2618
+% grid=[20;40;60;80;100;120;140;160;180;200;220]*[2];
+% lambdas=[0.01];
+% errors =1.0e-05 *[0.6446;
+%     0.1668;
+%     0.0742;
+%     0.0415;
+%     0.0263;
+%     0.0182;
+%     0.0134;
+%     0.0103;
+%     0.0082;
+%     0.0067;
+%     0.0055];
+% grid=[20;40;60;80;100;120;140;160;180;200;220]*[4];
+% lambdas=[0.005];
+% errors = 1.0e-05 *[0.2503;
+%     0.0708;
+%     0.0324;
+%     0.0185;
+%     0.0120;
+%     0.0084;
+%     0.0064;
+%     0.0053;
+%     0.0046;
+%     0.004517;
+%     0.004329]
+% grid=[75,150,300,600];
+% lambdas=[0.02,0.01,0.005,0.0025];
+% errors =1.0e-03 *[0.1246    0.0317    0.0081    0.0021];
+% grid=[200;220]*4;
+% lambdas=[0.005];
+% errors =
+% 
+%    7.8258e-06
+% grid=[200;220]*4;
+% lambdas=[0.005];
+% errors calculated using the log-exp form of the solution for 
+% errors =
+% 
+%    1.0e-07 *
+% 
+%     0.4517
+%     0.4329
 function [vsp,vqp]=ENO(v,i,n,lambda,k)
 ds=1/n;
 dq=1/n;
@@ -292,6 +386,14 @@ if i>=2*order
         table(:,:,ii+1)=choice.*tempp+(~choice).*tempm;
         indexs(:,:,ii+1)=choice.*ip+(~choice).*im;
         vsp(centers,:)=vsp(centers,:)+table(:,:,ii+1).*prod((repmat(indexs(:,:,1),1,1,ii-1)-indexs(:,:,2:ii))*ds,3);
+        % if ii==order
+        %     discont1=abs(tempp)>10;
+        %     discont2=abs(tempm)>10;
+        %     temp=vsp(centers,:);
+        %     temp(discont1)=0;
+        %     temp(discont2)=0;
+        %     vsp(centers,:)=temp;
+        % end
     end
     indexq(:,:,1)=repmat(centerq,size(alls));
     indexq(:,:,2)=repmat(centerq+1,size(alls));
@@ -315,6 +417,14 @@ if i>=2*order
         table(:,:,ii+1)=choice.*tempp+(~choice).*tempm;
         indexq(:,:,ii+1)=choice.*ip+(~choice).*im;
         vqp(:,centerq)=vqp(:,centerq)+table(:,:,ii+1).*prod((repmat(indexq(:,:,1),1,1,ii-1)-indexq(:,:,2:ii))*dq,3);
+        % if ii==order
+        %     discont1=abs(tempp)>10;
+        %     discont2=abs(tempm)>10;
+        %     temp=vqp(centers,:);
+        %     temp(discont1)=0;
+        %     temp(discont2)=0;
+        %     vqp(centers,:)=temp;
+        % end
     end
 end
 % if i>=2
