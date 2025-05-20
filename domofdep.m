@@ -22,7 +22,8 @@ function [t, s, q] = domofdep(dx, eorder, rkstage, alpha, beta, starttime, endti
 %      dt(N) = min(dx)/4;
       % dt(N) = min(C*min(dx)/(mumax+1),abs(endtime-starttime)-t(N));
       % dt(N) = min(C*min(dx)/(mumax+1),abs(endtime-starttime)-t(N));
-      dt(N) = min([C*min(dx)/(mumax+1)/2,min(dx.^2)/4,abs(endtime-starttime)-t(N)]);
+      dt(N) = min([1/(2*((mumax+1)/(C*min(dx))+2/(min(dx))^2)),abs(endtime-starttime)-t(N)]);
+      dt(N) = min([(C*min(dx))/(2*(mumax+1)),(min(dx))^2/2,abs(endtime-starttime)-t(N)]);
 %      dt(N) = min(C*min(dx)/(mumax+1),abs(endtime-starttime)-t(N));
 %      if eorder == 1 
 %         dt(N) = min(C*min(dx)/(mumax+1),abs(endtime-starttime)-t(N));
